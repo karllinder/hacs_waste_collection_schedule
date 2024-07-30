@@ -6458,6 +6458,11 @@
       "default_params": {}
     },
     {
+      "title": "Orust",
+      "module": "orust_se",
+      "default_params": {}
+    },
+    {
       "title": "Region Gotland",
       "module": "gotland_se",
       "default_params": {}
