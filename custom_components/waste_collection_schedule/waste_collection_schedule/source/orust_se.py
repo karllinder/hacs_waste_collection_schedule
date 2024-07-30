@@ -6,10 +6,9 @@ from waste_collection_schedule import Collection  # type: ignore[attr-defined]
 TITLE = "Orust"
 DESCRIPTION = "Source for Orust waste collection."
 URL = "https://orust.se"
-##TEST_CASES ={
+TEST_CASES ={
     "Kommunhuset": {"street_address": "Åvägen 2 -6, Henån"},
-    "VOS": {"street_address": "Glimsåsvägen 3"},
-        
+    "VOS": {"street_address": "Glimsåsvägen 3"},     
 }
 
 API_URL = "https://va-renhallning-minasidor.orust.se/FutureWeb/SimpleWastePickup"
@@ -21,7 +20,7 @@ class Source:
 
     def fetch(self):
         r = requests.post(
-            "{API_URL}/SearchAdress",
+            "https://va-renhallning-minasidor.orust.se/FutureWeb/SimpleWastePickup/SearchAdress",
             {"searchText": self._street_address}
         )
         r.raise_for_status()
@@ -37,7 +36,7 @@ class Source:
 
         params = {"address": address}
         r = requests.get(
-            "{API_URL}/GetWastePickupSchedule",
+            "https://va-renhallning-minasidor.orust.se/FutureWeb/SimpleWastePickup/GetWastePickupSchedule",
             params=params
         )
         r.raise_for_status()
