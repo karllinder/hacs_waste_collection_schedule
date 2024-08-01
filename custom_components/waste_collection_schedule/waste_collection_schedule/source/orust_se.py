@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 from waste_collection_schedule import Collection  # type: ignore[attr-defined]
 
-TITLE = "Ourust"
+TITLE = "Orust"
 DESCRIPTION = "Source for Orust waste collection."
 URL = "https://orust.se"
 TEST_CASES = {"15013600": {"facility_id": "15013600"}, "15013600": {"facility_id": 15013600}}
@@ -25,15 +25,14 @@ class Source:
 
         entries = []
         for item in data["RhServices"]:
+	    waste_type = item["WasteType"]
+	    icon = "mdi:trash-can"
+            if waste_type == "Matavfall":
+                icon = "mdi:leaf"
             next_pickup = item["NextWastePickup"]
             if not next_pickup:
                 continue
-
             next_pickup_date = datetime.strptime(next_pickup, "%Y-%m-%d").date()
-            waste_type = item["WasteType"]
-			icon = "mdi:trash-can"
-            if waste_type == "Matavfall":
-                icon = "mdi:leaf"
             entries.append(
                 Collection(date=next_pickup_date, t=waste_type, icon=icon)
             )
