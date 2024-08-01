@@ -3,54 +3,37 @@ from datetime import datetime
 import requests
 from waste_collection_schedule import Collection  # type: ignore[attr-defined]
 
-TITLE = "Orust"
+TITLE = "Ourust"
 DESCRIPTION = "Source for Orust waste collection."
 URL = "https://orust.se"
-TEST_CASES ={
-    "Kommunhuset": {"street_address": "Åvägen 2 -6, Henån"},
-    "VOS": {"street_address": "Glimsåsvägen 3"},     
-}
+TEST_CASES = {"15013600": {"facility_id": "15013600"}, "15013600": {"facility_id": 15013600}}
 
 API_URL = "https://va-renhallning-minasidor.orust.se/FutureWeb/SimpleWastePickup"
 
 
 class Source:
-    def __init__(self, street_address):
-        self._street_address = street_address
+    def __init__(self, facility_id: int | str):
+        self.facility_id: str = str(facility_id)
 
     def fetch(self):
-        r = requests.post(
-            "https://va-renhallning-minasidor.orust.se/FutureWeb/SimpleWastePickup/SearchAdress",
-            {"searchText": self._street_address}
-        )
-        r.raise_for_status()
+        url = f"{API_URL}/GetWastePickupSchedule"
+        params = {"address": f"({self.facility_id})"}
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
 
-        address_data = r.json()
-        address = None
-        if address_data["Succeeded"] is True:
-            if len(address_data["Buildings"]) > 0:
-                address = address_data["Buildings"][0]
-
-        if address is None:
-            raise Exception("address not found")
-
-        params = {"address": address}
-        r = requests.get(
-            "https://va-renhallning-minasidor.orust.se/FutureWeb/SimpleWastePickup/GetWastePickupSchedule",
-            params=params
-        )
-        r.raise_for_status()
-
-        data = r.json()
+        data = response.json()
 
         entries = []
         for item in data["RhServices"]:
+            next_pickup = item["NextWastePickup"]
+            if not next_pickup:
+                continue
+
+            next_pickup_date = datetime.strptime(next_pickup, "%Y-%m-%d").date()
             waste_type = item["WasteType"]
-            icon = "mdi:trash-can"
+			icon = "mdi:trash-can"
             if waste_type == "Matavfall":
                 icon = "mdi:leaf"
-            next_pickup = item["NextWastePickup"]
-            next_pickup_date = datetime.fromisoformat(next_pickup).date()
             entries.append(
                 Collection(date=next_pickup_date, t=waste_type, icon=icon)
             )
