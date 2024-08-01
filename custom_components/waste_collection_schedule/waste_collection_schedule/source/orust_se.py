@@ -25,8 +25,8 @@ class Source:
 
         entries = []
         for item in data["RhServices"]:
-	    waste_type = item["WasteType"]
-	    icon = "mdi:trash-can"
+            waste_type = item["WasteType"]
+            icon = "mdi:trash-can"
             if waste_type == "Matavfall":
                 icon = "mdi:leaf"
             next_pickup = item["NextWastePickup"]
